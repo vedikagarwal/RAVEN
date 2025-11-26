@@ -108,3 +108,7 @@ venv.bak/
 
 # experiments
 /experiments
+RAVEN-1000/*
+RAVEN-10000/*
+.DS_Store
+dataset_*.csv
