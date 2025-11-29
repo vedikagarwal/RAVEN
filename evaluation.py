@@ -125,11 +125,12 @@ class RAVENDataset(Dataset):
 
     def __getitem__(self, idx):
         data = np.load(self.files[idx])
+        emb_path = "/Users/mani/Documents/CS7651_HML/Project/assets/embedding.npy"
 
 
         image = data["image"]
         target = data["target"]
-
+        structure = data.get("structure", ['/']*6)
 
         meta_target = data.get("meta_target", np.zeros(9))
         if not isinstance(meta_target, np.ndarray):
@@ -146,7 +147,16 @@ class RAVENDataset(Dataset):
 
 
         embedding = np.zeros((6, 300), dtype=np.float32)
-        indicator = np.array([1.0], dtype=np.float32)
+        indicator = torch.zeros(1, dtype=torch.float)
+        element_idx = 0
+        for element in structure:
+            if element != '/':
+                emb_vec = embeddings_dict.get(element)
+                if emb_vec is not None:
+                    embedding[element_idx, :] = torch.tensor(emb_vec, dtype=torch.float)
+                    element_idx += 1
+        if element_idx == 6:
+            indicator[0] = 1.0
 
 
         if isinstance(target, np.ndarray):
