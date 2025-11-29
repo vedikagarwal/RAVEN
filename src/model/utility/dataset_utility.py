@@ -6,6 +6,7 @@ from scipy import misc
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
+from PIL import Image
 
         
 class ToTensor(object):
@@ -16,10 +17,19 @@ class dataset(Dataset):
     def __init__(self, root_dir, dataset_type, img_size, transform=None, shuffle=False):
         self.root_dir = root_dir
         self.transform = transform
-        self.file_names = [f for f in glob.glob(os.path.join(root_dir, "*", "*.npz")) \
-                            if dataset_type in f]
+        #self.file_names = [f for f in glob.glob(os.path.join(root_dir, "*", "*.npz")) \
+        #                    if dataset_type in f]
+        pattern = os.path.join(root_dir, "*.npz")
+
+        self.file_names = [
+
+            f for f in glob.glob(pattern)
+
+            if f"_{dataset_type}." in f
+
+        ]
         self.img_size = img_size
-        self.embeddings = np.load(os.path.join(root_dir, 'embedding.npy'), allow_pickle=True)
+        self.embeddings = np.load(os.path.join(root_dir, 'embedding.npy'), allow_pickle=True, encoding='latin1')
         self.shuffle = shuffle
 
     def __len__(self):
@@ -46,7 +56,10 @@ class dataset(Dataset):
         
         resize_image = []
         for idx in range(0, 16):
-            resize_image.append(misc.imresize(image[idx,:,:], (self.img_size, self.img_size)))
+            pil_img = Image.fromarray(image[idx, :, :])
+            pil_img = pil_img.resize((self.img_size, self.img_size), Image.BILINEAR)
+            resize_image.append(np.array(pil_img))
+            # resize_image.append(misc.imresize(image[idx,:,:], (self.img_size, self.img_size)))
         resize_image = np.stack(resize_image)
         # image = resize(image, (16, 128, 128))
         # meta_matrix = data["mata_matrix"]
@@ -54,9 +67,18 @@ class dataset(Dataset):
         embedding = torch.zeros((6, 300), dtype=torch.float)
         indicator = torch.zeros(1, dtype=torch.float)
         element_idx = 0
+        #first_key = list(self.embeddings.item().keys())[0]
+        #embedding_dim = len(self.embeddings.item()[first_key])
         for element in structure:
             if element != '/':
-                embedding[element_idx, :] = torch.tensor(self.embeddings.item().get(element), dtype=torch.float)
+                vec = self.embeddings.item().get(element)
+                if vec is None:
+                    continue
+                    #raise ValueError("Embedding missing for key: {}".format(element))
+                embedding[element_idx, :] = torch.tensor(vec, dtype=torch.float)
+
+
+                # embedding[element_idx, :] = torch.tensor(self.embeddings.item().get(element), dtype=torch.float)
                 element_idx += 1
         if element_idx == 6:
             indicator[0] = 1.
