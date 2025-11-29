@@ -8,7 +8,7 @@ class BasicModel(nn.Module):
         self.name = args.model
     
     def load_model(self, path, epoch):
-        state_dict = torch.load(path+'{}_epoch_{}.pth'.format(self.name, epoch))['state_dict']
+        state_dict = torch.load(path+'{}_epoch_{}.pth'.format(self.name, epoch), weights_only=False)['state_dict']
         self.load_state_dict(state_dict)
 
     def save_model(self, path, epoch, acc, loss):
