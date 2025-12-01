@@ -116,3 +116,10 @@ dataset_*.csv
 Full_Data.zip
 Full_Data/*
 Testing_Data/*
+checkpoint/*
+evaluation_results.csv
+evaluation_results_high.csv
+evaluation_results_low.csv
+evaluation_results_medium.csv
+hml_env/*
+src/evaluation/*
