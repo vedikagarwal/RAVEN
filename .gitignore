@@ -112,3 +112,7 @@ RAVEN-1000/*
 RAVEN-10000/*
 .DS_Store
 dataset_*.csv
+
+Full_Data.zip
+Full_Data/*
+Testing_Data/*
