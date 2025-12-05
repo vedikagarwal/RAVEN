@@ -123,3 +123,5 @@ evaluation_results_low.csv
 evaluation_results_medium.csv
 hml_env/*
 src/evaluation/*
+Testing_Data.zip
+Testing_Data/*
